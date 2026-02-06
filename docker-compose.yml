@@ -1,0 +1,22 @@
+﻿services:
+  discoball:
+    container_name: discoball
+    build: .
+    restart: unless-stopped
+    environment:
+      WATCH_DIR: /watch
+      OUTPUT_DIR: /output
+      STABLE_TIME_SECONDS: "120"
+      CHECK_INTERVAL_SECONDS: "30"
+      VIDEO_EXTENSIONS: "mkv,mp4"
+      LOG_LEVEL: "INFO"
+      INCLUDE_GENRE_TAG: "1"
+      INCLUDE_SOURCE_TAG: "1"
+      USE_GENRE_SUBFOLDER: "0"
+      SOURCE_TAG_DEFAULT: "DVD"
+      MOVIE_ROOT_SUBDIR: ""
+      TV_ROOT_SUBDIR: "TV"
+      # OMDB_API_KEY: "PUT_YOURS_HERE"
+    volumes:
+      - /media/ZimaOS-HD/Media/Movies_Encoded:/watch
+      - /media/ZimaOS-HD/Media/Library:/output

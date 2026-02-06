@@ -1,0 +1,25 @@
+﻿[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "discoball"
+version = "0.1.0"
+description = "Docker-friendly post-transcode tagger/renamer for video files."
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+dependencies = [
+  "watchdog>=4.0.0",
+  "requests>=2.32.0",
+  "rapidfuzz>=3.9.0"
+]
+
+[project.scripts]
+discoball = "discoball.main:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
