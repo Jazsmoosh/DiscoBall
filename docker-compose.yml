@@ -16,7 +16,6 @@
       SOURCE_TAG_DEFAULT: "DVD"
       MOVIE_ROOT_SUBDIR: ""
       TV_ROOT_SUBDIR: "TV"
-      # OMDB_API_KEY: "PUT_YOURS_HERE"
-    volumes:
+          volumes:
       - /media/ZimaOS-HD/Media/Movies_Encoded:/watch
       - /media/ZimaOS-HD/Media/Library:/output
