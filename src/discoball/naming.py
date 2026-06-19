@@ -1,35 +1,43 @@
-﻿import os
+from __future__ import annotations
 
-def truthy(env, default="0"):
-    v = (os.getenv(env, default) or "").strip().lower()
-    return v in ("1", "true", "yes", "y", "on")
+import os
+from pathlib import Path
 
-def safe_name(s):
-    bad = "\\\\/:*?"
-    bad = bad + chr(34) + chr(60) + chr(62) + chr(124)
-    for ch in bad:
-        s = s.replace(ch, "")
-    s = " ".join(s.split()).strip()
-    return s
+from .config import Config
+from .models import MediaMatch
+from .utils import safe_name
 
-def build_base(title, year, genre, source):
-    b = title
-    if year:
-        b = b + " (" + str(year) + ")"
-    if truthy("INCLUDE_GENRE_TAG", "1") and genre:
-        b = b + " [" + genre + "]"
-    if truthy("INCLUDE_SOURCE_TAG", "1") and source:
-        b = b + " {" + source + "}"
-    return b
 
-def build_destination(match, src_path, output_root):
-    ext = os.path.splitext(src_path)[1].lower()
-    title = safe_name(match.get("title") or os.path.splitext(os.path.basename(src_path))[0])
-    year = match.get("year")
-    genre = safe_name(match.get("primary_genre")) if match.get("primary_genre") else None
-    source = safe_name(match.get("source")) if match.get("source") else None
-    base = safe_name(build_base(title, year, genre, source))
-    sub = (os.getenv("MOVIE_ROOT_SUBDIR") or "").strip()
-    root = output_root if not sub else os.path.join(output_root, sub)
-    folder = os.path.join(root, base)
-    return folder, base + ext
+def _base_name(match: MediaMatch, cfg: Config, *, include_tags: bool = True) -> str:
+    title = safe_name(match.title or "Unknown")
+    base = title
+    if match.year:
+        base += f" ({match.year})"
+    if include_tags and cfg.include_genre_tag and match.primary_genre:
+        base += f" [{safe_name(match.primary_genre)}]"
+    if include_tags and cfg.include_source_tag and match.source:
+        base += f" {{{safe_name(match.source)}}}"
+    return safe_name(base)
+
+
+def build_destination(match: MediaMatch, src_path: str, output_root: str, cfg: Config) -> tuple[str, str]:
+    ext = Path(src_path).suffix.lower()
+    if match.media_type in {"episode", "series"}:
+        root = Path(output_root) / cfg.tv_root_subdir if cfg.tv_root_subdir else Path(output_root)
+    else:
+        root = Path(output_root) / cfg.movie_root_subdir if cfg.movie_root_subdir else Path(output_root)
+
+    if cfg.naming_style == "plex":
+        # Plex-style naming keeps metadata tags out of the actual file/folder name.
+        base = _base_name(match, cfg, include_tags=False)
+    else:
+        base = _base_name(match, cfg, include_tags=True)
+
+    folder = root / base
+    return str(folder), base + ext
+
+
+def build_unmatched_destination(src_path: str, output_root: str, cfg: Config) -> tuple[str, str]:
+    p = Path(src_path)
+    folder = Path(output_root) / cfg.unmatched_subdir
+    return str(folder), safe_name(p.stem) + p.suffix.lower()

@@ -1,11 +1,11 @@
-﻿[build-system]
+[build-system]
 requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "discoball"
-version = "0.1.0"
-description = "Docker-friendly post-transcode tagger/renamer for video files."
+version = "0.2.0"
+description = "Docker-friendly MakeMKV/HandBrake post-process watcher that identifies, renames, and files video rips."
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
@@ -14,6 +14,9 @@ dependencies = [
   "requests>=2.32.0",
   "rapidfuzz>=3.9.0"
 ]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.2.0"]
 
 [project.scripts]
 discoball = "discoball.main:main"
