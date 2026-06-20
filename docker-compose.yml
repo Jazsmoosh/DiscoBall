@@ -1,37 +1,35 @@
 services:
   discoball:
-    container_name: ${DISCOBALL_CONTAINER_NAME:-discoball}
+    container_name: discoball
     build: .
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       WATCH_DIR: /watch
       OUTPUT_DIR: /output
       CONFIG_DIR: /config
-      STABLE_TIME_SECONDS: ${STABLE_TIME_SECONDS:-120}
-      CHECK_INTERVAL_SECONDS: ${CHECK_INTERVAL_SECONDS:-30}
-      VIDEO_EXTENSIONS: ${VIDEO_EXTENSIONS:-mkv,mp4}
-      LOG_LEVEL: ${LOG_LEVEL:-INFO}
-      UI_ENABLED: ${UI_ENABLED:-1}
-      UI_PORT: ${UI_PORT:-8000}
-      PROVIDERS: ${PROVIDERS:-omdb,imdb}
-      OMDB_API_KEY: ${OMDB_API_KEY:-}
-      IMDB_SQLITE_PATH: ${IMDB_SQLITE_PATH:-/config/imdb.sqlite}
-      MIN_CONFIDENCE: ${MIN_CONFIDENCE:-0.64}
-      MIN_VIDEO_SIZE_MB: ${MIN_VIDEO_SIZE_MB:-50}
-      INCLUDE_GENRE_TAG: ${INCLUDE_GENRE_TAG:-1}
-      INCLUDE_SOURCE_TAG: ${INCLUDE_SOURCE_TAG:-1}
-      SOURCE_TAG_DEFAULT: ${SOURCE_TAG_DEFAULT:-DVD}
-      MOVIE_ROOT_SUBDIR: ${MOVIE_ROOT_SUBDIR:-}
-      TV_ROOT_SUBDIR: ${TV_ROOT_SUBDIR:-}
-      UNMATCHED_SUBDIR: ${UNMATCHED_SUBDIR:-_Unmatched}
-      FILE_ACTION: ${FILE_ACTION:-move}
-      CONFLICT_POLICY: ${CONFLICT_POLICY:-suffix}
-      NAMING_STYLE: ${NAMING_STYLE:-discoball}
+      STABLE_TIME_SECONDS: "120"
+      CHECK_INTERVAL_SECONDS: "30"
+      VIDEO_EXTENSIONS: "mkv,mp4"
+      LOG_LEVEL: INFO
+      UI_ENABLED: "1"
+      UI_PORT: "8000"
+      PROVIDERS: "omdb,imdb"
+      OMDB_API_KEY: "${OMDB_API_KEY}"
+      IMDB_SQLITE_PATH: /config/imdb.sqlite
+      MIN_CONFIDENCE: "0.64"
+      MIN_VIDEO_SIZE_MB: "50"
+      INCLUDE_GENRE_TAG: "1"
+      INCLUDE_SOURCE_TAG: "1"
+      SOURCE_TAG_DEFAULT: DVD
+      MOVIE_ROOT_SUBDIR: ""
+      TV_ROOT_SUBDIR: TV
+      UNMATCHED_SUBDIR: _Unmatched
+      FILE_ACTION: move
+      CONFLICT_POLICY: suffix
+      NAMING_STYLE: discoball
     ports:
-      - "${DISCOBALL_WEB_PORT:-8000}:8000"
+      - "8000:8000"
     volumes:
-      - ${DISCOBALL_WATCH_PATH:-./watch}:/watch
-      - ${DISCOBALL_OUTPUT_PATH:-./output}:/output
-      - ${DISCOBALL_CONFIG_PATH:-./config}:/config
+      - /media/ZimaOS-HD/Media/Movies_Encoded:/watch
+      - /media/ZimaOS-HD/Media/Library:/output
+      - /media/ZimaOS-HD/AppData/discoball:/config

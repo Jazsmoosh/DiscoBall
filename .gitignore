@@ -2,8 +2,6 @@ __pycache__/
 *.py[cod]
 *.egg-info/
 .env
-.env.*
-!.env.example
 .venv/
 dist/
 build/
@@ -14,13 +12,6 @@ build/
 /config/
 /watch/
 /output/
-/library/
-.discoball-backups/
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
-*.mkv
-*.mp4
-*.avi
-*.mov
-*.iso
