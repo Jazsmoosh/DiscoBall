@@ -1,1 +1,1 @@
-﻿__all__ = []
+"""Metadata providers for DiscoBall."""

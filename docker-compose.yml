@@ -1,4 +1,4 @@
-﻿services:
+services:
   discoball:
     container_name: discoball
     build: .
@@ -6,16 +6,30 @@
     environment:
       WATCH_DIR: /watch
       OUTPUT_DIR: /output
+      CONFIG_DIR: /config
       STABLE_TIME_SECONDS: "120"
       CHECK_INTERVAL_SECONDS: "30"
       VIDEO_EXTENSIONS: "mkv,mp4"
-      LOG_LEVEL: "INFO"
+      LOG_LEVEL: INFO
+      UI_ENABLED: "1"
+      UI_PORT: "8000"
+      PROVIDERS: "omdb,imdb"
+      OMDB_API_KEY: "${OMDB_API_KEY}"
+      IMDB_SQLITE_PATH: /config/imdb.sqlite
+      MIN_CONFIDENCE: "0.64"
+      MIN_VIDEO_SIZE_MB: "50"
       INCLUDE_GENRE_TAG: "1"
       INCLUDE_SOURCE_TAG: "1"
-      USE_GENRE_SUBFOLDER: "0"
-      SOURCE_TAG_DEFAULT: "DVD"
+      SOURCE_TAG_DEFAULT: DVD
       MOVIE_ROOT_SUBDIR: ""
-      TV_ROOT_SUBDIR: "TV"
-          volumes:
+      TV_ROOT_SUBDIR: TV
+      UNMATCHED_SUBDIR: _Unmatched
+      FILE_ACTION: move
+      CONFLICT_POLICY: suffix
+      NAMING_STYLE: discoball
+    ports:
+      - "8000:8000"
+    volumes:
       - /media/ZimaOS-HD/Media/Movies_Encoded:/watch
       - /media/ZimaOS-HD/Media/Library:/output
+      - /media/ZimaOS-HD/AppData/discoball:/config
