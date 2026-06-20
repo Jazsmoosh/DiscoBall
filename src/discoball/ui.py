@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import json
 import threading
@@ -427,7 +427,7 @@ _HTML = r"""<!doctype html>
         <div class="orbWrap"><div class="orb" aria-hidden="true"></div></div>
         <div>
           <h1>DiscoBall</h1>
-          <p class="tagline">MakeMKV post-process monitor Â· identify Â· rename Â· organize</p>
+          <p class="tagline">MakeMKV post-process monitor &diamond; identify &diamond; rename &diamond; organize</p>
         </div>
       </div>
       <div class="statusPills">
@@ -497,7 +497,7 @@ _HTML = r"""<!doctype html>
     </section>
 
     <footer class="footer">
-      <span>Cyberdream UI Â· no external assets Â· no telemetry</span>
+      <span>Cyberdream UI &diamond; no external assets &diamond; no telemetry</span>
       <span>Polling <code>/api/status</code> every second</span>
     </footer>
   </main>
