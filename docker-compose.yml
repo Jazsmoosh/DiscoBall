@@ -1,11 +1,9 @@
-# Portable DiscoBall Compose example.
-# Copy to docker-compose.yml or use directly with:
-#   docker compose -f docker-compose.example.yml up -d --build
-
 services:
   discoball:
     container_name: ${DISCOBALL_CONTAINER_NAME:-discoball}
-    build: .
+    image: ghcr.io/jazsmoosh/discoball:latest
+    build:
+      context: .
     restart: unless-stopped
     env_file:
       - .env
@@ -13,12 +11,12 @@ services:
       WATCH_DIR: /watch
       OUTPUT_DIR: /output
       CONFIG_DIR: /config
-      STABLE_TIME_SECONDS: ${STABLE_TIME_SECONDS:-120}
-      CHECK_INTERVAL_SECONDS: ${CHECK_INTERVAL_SECONDS:-30}
-      VIDEO_EXTENSIONS: ${VIDEO_EXTENSIONS:-mkv,mp4}
-      LOG_LEVEL: ${LOG_LEVEL:-INFO}
       UI_ENABLED: ${UI_ENABLED:-1}
       UI_PORT: ${UI_PORT:-8000}
+      STABLE_TIME_SECONDS: ${STABLE_TIME_SECONDS:-120}
+      CHECK_INTERVAL_SECONDS: ${CHECK_INTERVAL_SECONDS:-30}
+      VIDEO_EXTENSIONS: ${VIDEO_EXTENSIONS:-mkv,mp4,m4v}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
       PROVIDERS: ${PROVIDERS:-omdb,imdb}
       OMDB_API_KEY: ${OMDB_API_KEY:-}
       IMDB_SQLITE_PATH: ${IMDB_SQLITE_PATH:-/config/imdb.sqlite}
@@ -28,14 +26,15 @@ services:
       INCLUDE_SOURCE_TAG: ${INCLUDE_SOURCE_TAG:-1}
       SOURCE_TAG_DEFAULT: ${SOURCE_TAG_DEFAULT:-DVD}
       MOVIE_ROOT_SUBDIR: ${MOVIE_ROOT_SUBDIR:-}
-      TV_ROOT_SUBDIR: ${TV_ROOT_SUBDIR:-}
+      TV_ROOT_SUBDIR: ${TV_ROOT_SUBDIR:-TV}
       UNMATCHED_SUBDIR: ${UNMATCHED_SUBDIR:-_Unmatched}
       FILE_ACTION: ${FILE_ACTION:-move}
       CONFLICT_POLICY: ${CONFLICT_POLICY:-suffix}
       NAMING_STYLE: ${NAMING_STYLE:-discoball}
+      PREFER_PARENT_FOR_GENERIC: ${PREFER_PARENT_FOR_GENERIC:-1}
     ports:
       - "${DISCOBALL_WEB_PORT:-8000}:8000"
     volumes:
-      - ${DISCOBALL_WATCH_PATH:-./watch}:/watch
-      - ${DISCOBALL_OUTPUT_PATH:-./output}:/output
-      - ${DISCOBALL_CONFIG_PATH:-./config}:/config
+      - ${DISCOBALL_WATCH_PATH:-./watch}:/watch:rw
+      - ${DISCOBALL_OUTPUT_PATH:-./output}:/output:rw
+      - ${DISCOBALL_CONFIG_PATH:-./config}:/config:rw

@@ -1,10 +1,8 @@
 # DiscoBall
 
-DiscoBall is a Docker-friendly post-process watcher for MakeMKV-style media workflows. It watches an ingest folder, waits for a video file to stop changing, identifies the movie with metadata providers such as OMDb, and moves or copies the completed file into a clean library structure.
+DiscoBall is a Docker-friendly post-process watcher for MakeMKV-style media workflows. It watches an ingest folder, waits for a completed video file to stop changing, identifies the movie with metadata providers such as OMDb, and moves or copies the finished file into a clean library structure.
 
-It is designed to be portable across any Docker host: Linux server, NAS, homelab box, Docker Desktop, Proxmox LXC/VM, Unraid, Synology-style Docker environments, CasaOS, ZimaOS, or a plain Ubuntu/Debian box.
-
-> DiscoBall is not a ripper, decryptor, or media source. It only organizes local video files that already exist in a folder you provide.
+> DiscoBall is not a ripper, decryptor, downloader, or media source. It only organizes local video files that already exist in a folder you provide.
 
 ## What it does
 
@@ -20,36 +18,46 @@ Output example:
 /output/Cast Away (2000) [Adventure] {DVD}/Cast Away (2000) [Adventure] {DVD}.mkv
 ```
 
-Why the parent folder matters:
+MakeMKV often creates generic filenames such as `title_t00.mkv`, `F4_t00.mkv`, `A1_t00.mkv`, or `VTS_03_1.mkv`. DiscoBall treats those names as generic and uses the nearest meaningful parent folder, such as `Cast Away (2000)`, as the metadata hint.
 
-MakeMKV often creates generic filenames such as `title_t00.mkv`, `F4_t00.mkv`, `A1_t00.mkv`, or `VTS_03_1.mkv`. Those names do not contain enough information to identify a movie reliably. DiscoBall treats those names as generic and uses the nearest meaningful parent folder, such as `Cast Away (2000)`, as the metadata hint.
+## ZimaOS quick install
 
-## Features
+Use this when MakeMKV and HandBrake are already installed and HandBrake outputs completed encodes to `/DATA/Media/HandBrake/output`.
 
-- Portable Docker Compose deployment
-- OMDb metadata lookup
-- Optional local IMDb non-commercial dataset fallback
-- Generic MakeMKV filename detection
-- File-size stability wait before processing
-- Configurable move/copy/hardlink behavior
-- Safe `_Unmatched` routing for low-confidence matches
-- JSON sidecar audit file for each processed item
-- Cyberdream web dashboard
-- CLI commands for watch, scan, identify, and one-time processing
-- No external frontend assets, CDN, telemetry, or JavaScript framework
+```bash
+curl -fsSL https://raw.githubusercontent.com/Jazsmoosh/DiscoBall/main/scripts/install-zimaos-discoball.sh -o /tmp/install-zimaos-discoball.sh
+chmod +x /tmp/install-zimaos-discoball.sh
+sudo /tmp/install-zimaos-discoball.sh
+```
 
-## Quick start
+The installer prompts for your OMDb API key before starting the container.
 
-### 1. Clone
+Default ZimaOS workflow:
+
+```text
+MakeMKV output:      /DATA/Media/MakeMKV/output
+HandBrake watch:     /DATA/Media/MakeMKV/output
+HandBrake output:    /DATA/Media/HandBrake/output
+DiscoBall watch:     /DATA/Media/HandBrake/output
+DiscoBall library:   /DATA/Media/Library
+DiscoBall config:    /DATA/AppData/discoball
+```
+
+Default ZimaOS ports:
+
+```text
+MakeMKV:    http://<zima-host-ip>:6220
+HandBrake:  http://<zima-host-ip>:15800
+DiscoBall:  http://<zima-host-ip>:18000
+```
+
+Do not point DiscoBall at MakeMKV raw output when HandBrake is part of the workflow.
+
+## Docker Compose quick start
 
 ```bash
 git clone https://github.com/Jazsmoosh/DiscoBall.git
 cd DiscoBall
-```
-
-### 2. Create `.env`
-
-```bash
 cp .env.example .env
 nano .env
 ```
@@ -60,111 +68,46 @@ At minimum, set:
 OMDB_API_KEY=your_omdb_key_here
 ```
 
-Do not commit `.env`.
-
-### 3. Choose host folders
-
-DiscoBall only needs three folders:
-
-| Purpose | Container path | Example host path |
-|---|---|---|
-| Ingest/watch folder | `/watch` | `/srv/media/incoming` |
-| Library output folder | `/output` | `/srv/media/library` |
-| App config/data folder | `/config` | `/srv/discoball/config` |
-
-Set the host paths in `.env`:
+Set host folders:
 
 ```env
 DISCOBALL_WATCH_PATH=/srv/media/incoming
 DISCOBALL_OUTPUT_PATH=/srv/media/library
 DISCOBALL_CONFIG_PATH=/srv/discoball/config
 DISCOBALL_WEB_PORT=8000
+UI_ENABLED=1
+UI_PORT=8000
 ```
 
-For local testing on any Docker machine, the defaults can be relative folders:
-
-```env
-DISCOBALL_WATCH_PATH=./watch
-DISCOBALL_OUTPUT_PATH=./output
-DISCOBALL_CONFIG_PATH=./config
-DISCOBALL_WEB_PORT=8000
-```
-
-### 4. Start
+Start:
 
 ```bash
 docker compose up -d --build
 ```
 
-### 5. Open the dashboard
+Open:
 
 ```text
 http://<docker-host-ip>:8000
 ```
 
-If you changed `DISCOBALL_WEB_PORT`, use that host port instead.
+## Direct Docker run
 
-## Recommended MakeMKV-style workflow
-
-Configure your ripper/transcoder to output into a meaningful per-title folder:
-
-```text
-Incoming Root/Movie Title (Year)/generic_file_name.mkv
-```
-
-Examples:
-
-```text
-/srv/media/incoming/Cast Away (2000)/F4_t00.mkv
-/srv/media/incoming/Se7en (1995)/A1_t00.mkv
-/srv/media/incoming/The Matrix (1999)/title_t00.mkv
-```
-
-Avoid:
-
-```text
-/srv/media/incoming/title_t00.mkv
-/srv/media/incoming/output/F4_t00.mkv
-```
-
-DiscoBall can normalize generic file names, but it still needs a meaningful folder hint.
-
-## CLI usage
-
-Show help:
+For direct Docker usage, always enable the UI when publishing port `8000`:
 
 ```bash
-docker compose run --rm discoball discoball --help
-```
-
-Identify a file without moving it:
-
-```bash
-docker compose run --rm discoball discoball identify "/watch/Cast Away (2000)/F4_t00.mkv"
-```
-
-Process one file:
-
-```bash
-docker compose run --rm discoball discoball once "/watch/Cast Away (2000)/F4_t00.mkv"
-```
-
-Dry-run one file:
-
-```bash
-docker compose run --rm discoball discoball once --dry-run "/watch/Cast Away (2000)/F4_t00.mkv"
-```
-
-Run a one-time scan of the watch folder:
-
-```bash
-docker compose run --rm discoball discoball scan
-```
-
-Run the long-lived watcher:
-
-```bash
-docker compose up -d
+docker run -d \
+  --name discoball \
+  --restart unless-stopped \
+  -p 18000:8000 \
+  -e UI_ENABLED=1 \
+  -e UI_PORT=8000 \
+  -e OMDB_API_KEY="your_omdb_key_here" \
+  -v /srv/media/incoming:/watch:rw \
+  -v /srv/media/library:/output:rw \
+  -v /srv/discoball/config:/config:rw \
+  ghcr.io/jazsmoosh/discoball:latest \
+  discoball watch
 ```
 
 ## Documentation
@@ -172,47 +115,9 @@ docker compose up -d
 - [Install Guide](docs/INSTALL.md)
 - [Configuration Reference](docs/CONFIGURATION.md)
 - [Workflow Guide](docs/WORKFLOW.md)
+- [ZimaOS Media Pipeline](docs/ZIMAOS_MEDIA_PIPELINE.md)
 - [Troubleshooting](docs/TROUBLESHOOTING.md)
-- [Technical SOP](docs/SOP.md)
-- [Architecture](docs/ARCHITECTURE.md)
-- [Security Policy](SECURITY.md)
-- [Contributing](CONTRIBUTING.md)
-- [Changelog](CHANGELOG.md)
-
-## Metadata providers
-
-### OMDb
-
-OMDb is the default live metadata provider. Put the API key in `.env`:
-
-```env
-OMDB_API_KEY=your_omdb_key_here
-```
-
-### Optional IMDb local fallback
-
-DiscoBall can optionally build a local SQLite index from IMDb non-commercial dataset files.
-
-```bash
-docker compose run --rm \
-  -v /path/to/imdb-datasets:/imdb \
-  discoball discoball imdb-index --dataset-dir /imdb --db /config/imdb.sqlite
-```
-
-Then keep:
-
-```env
-PROVIDERS=omdb,imdb
-IMDB_SQLITE_PATH=/config/imdb.sqlite
-```
-
-DiscoBall does not scrape IMDb pages.
-
-## License and acknowledgements
-
-DiscoBall is released under the MIT License. See [LICENSE](LICENSE).
-
-OMDb, IMDb datasets, MakeMKV, Docker, and any media-library tools you pair with DiscoBall have their own terms and licensing. Use each service and dataset according to its terms.
+- [Future Improvements](docs/FUTURE_IMPROVEMENTS.md)
 
 ## Legal note
 
