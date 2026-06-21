@@ -6,15 +6,15 @@
 
 For the smoothest out-of-box workflow on ZimaOS, use:
 
-`	ext
+```text
 MakeMKV -> HandBrake -> Discoball
-`
+```
 
 Recommended Docker path flow:
 
-`	ext
+```text
 MakeMKV:
-  /DATA/Media/MakeMKV/output  -> /output
+  /DATA/Media/MakeMKV/output   -> /output
 
 HandBrake:
   /DATA/Media/MakeMKV/output   -> /watch
@@ -23,21 +23,21 @@ HandBrake:
 Discoball:
   /DATA/Media/HandBrake/output -> /watch
   /DATA/Media/Library          -> /output
-`
+```
 
 Discoball should watch completed HandBrake output, not raw MakeMKV output, when HandBrake is part of the workflow.
 
 Full ZimaOS setup guide:
 
-`	ext
+```text
 docs/ZIMAOS_MEDIA_PIPELINE.md
-`
+```
 
 Example compose file:
 
-`	ext
+```text
 examples/zimaos-media-pipeline.compose.yml
-`
+```
 
 <!-- DISCOBALL-ZIMAOS-PIPELINE:END -->
 
@@ -258,4 +258,5 @@ OMDb, IMDb datasets, MakeMKV, Docker, and any media-library tools you pair with 
 ## Legal note
 
 DiscoBall does not provide, decrypt, bypass, download, or distribute media. It is a local file organization tool. Users are responsible for ensuring they have the right to process any media files they place into the watch folder and for complying with local law.
+
 
