@@ -1,0 +1,48 @@
+﻿services:
+  makemkv:
+    image: jlesage/makemkv:latest
+    container_name: makemkv
+    restart: unless-stopped
+    ports:
+      - "6220:5800"
+    environment:
+      - MAKEMKV_KEY=BETA
+    volumes:
+      - /DATA/AppData/makemkv:/config:rw
+      - /DATA/Media:/storage:ro
+      - /DATA/Media/MakeMKV/output:/output:rw
+    # Add the correct optical devices for your host.
+    # Common examples:
+    # devices:
+    #   - /dev/sr0:/dev/sr0
+    #   - /dev/sg0:/dev/sg0
+
+  handbrake:
+    image: jlesage/handbrake:latest
+    container_name: handbrake
+    restart: unless-stopped
+    ports:
+      - "15800:5800"
+    environment:
+      - AUTOMATED_CONVERSION=1
+      - AUTOMATED_CONVERSION_CHECK_INTERVAL=300
+      - AUTOMATED_CONVERSION_FORMAT=mkv
+      - AUTOMATED_CONVERSION_KEEP_SOURCE=1
+      - AUTOMATED_CONVERSION_PRESET=General/Very Fast 1080p30
+      - AUTOMATED_CONVERSION_SOURCE_STABLE_TIME=120
+    volumes:
+      - /DATA/AppData/handbrake/config:/config:rw
+      - /DATA/Media:/storage:ro
+      - /DATA/Media/MakeMKV/output:/watch:rw
+      - /DATA/Media/HandBrake/output:/output:rw
+
+  discoball:
+    image: ghcr.io/jazsmoosh/discoball:latest
+    container_name: discoball
+    restart: unless-stopped
+    ports:
+      - "18000:8000"
+    volumes:
+      - /DATA/AppData/discoball:/config:rw
+      - /DATA/Media/HandBrake/output:/watch:rw
+      - /DATA/Media/Library:/output:rw
